@@ -2,6 +2,20 @@
 
 Embedded electronics projects.
 
+## Standalone compass — v1.0.0
+
+[Hardware, wiring, calibration, and testing](compass/README.md)
+
+An ESP32-S3 SuperMini magnetic compass using a QMC5883P magnetometer and the
+existing single GC9A01 display. The MPU-6050 can remain connected but its
+measurements are not used. This is separate firmware from the attitude indicator.
+
+```sh
+cd compass
+pio run
+pio run -t upload
+```
+
 ## Attitude indicator — v1.0.0
 
 [Project documentation and wiring diagram](attitude-indicator/README.md)

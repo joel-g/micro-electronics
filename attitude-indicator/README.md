@@ -30,6 +30,9 @@ sensor axes. Compass, button selection, and CAN integration remain future work.
 
 ## Hardware
 
+See the [bill of materials](docs/BOM.md) for quantities, module and chip
+identifiers, and the manufacturer/supplier details still to be recorded.
+
 | Component | Configuration / purpose |
 | --- | --- |
 | ESP32-S3 SuperMini | Microcontroller; 4 MB flash, 2 MB PSRAM; USB programming and serial diagnostics |

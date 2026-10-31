@@ -67,25 +67,51 @@ this QMC5883P driver.
 QMC5883P DRDY is unconnected. The display's SDA/SCL labels denote **SPI**;
 the sensors use the separate shared I²C bus. GPIO numbers are not header positions.
 
-```text
-ESP32-S3                       GC9A01 (one display)
-  GPIO8 ---------------------- SCL / SCLK
-  GPIO9 ---------------------- SDA / MOSI
-  GPIO10 --------------------- CS
-  GPIO11 --------------------- DC
-  GPIO12 --------------------- RST
+### Wiring diagram
 
-                               QMC5883P        MPU-6050
-  GPIO1 ---- shared SDA ------- SDA ----------- SDA
-  GPIO2 ---- shared SCL ------- SCL ----------- SCL
-                               DRDY unused
+This is a logical connection diagram, not the physical order of module pins.
+The connection table above also works in viewers without Mermaid support.
 
-  GPIO13 ---- [normally-open push button] ---- GND
-    internal pull-up enabled; no external resistor needed
+```mermaid
+flowchart LR
+    esp["ESP32-S3 SuperMini<br/>4 MB flash / 2 MB PSRAM"]
+    imu["MPU-6050<br/>I²C address 0x68"]
+    mag["GY-271 / QMC5883P<br/>I²C address 0x2C<br/>DRDY unconnected"]
+    tft["GC9A01 TFT — one display<br/>1.28 inch / 240 × 240"]
+    sda["Shared I²C SDA"]
+    scl["Shared I²C SCL"]
+    button["Normally-open<br/>momentary push button"]
+    power["Shared 3.3 V"]
+    ground["Common ground"]
 
-  3V3 ------------------------ VCC of display and both sensors
-  GND ------------------------ GND of display and both sensors
+    esp <-->|"GPIO1"| sda
+    sda <-->|"SDA"| imu
+    sda <-->|"SDA"| mag
+    esp -->|"GPIO2"| scl
+    scl -->|"SCL"| imu
+    scl -->|"SCL"| mag
+
+    esp -->|"GPIO8 → SCL / SCLK"| tft
+    esp -->|"GPIO9 → SDA / MOSI"| tft
+    esp -->|"GPIO10 → CS"| tft
+    esp -->|"GPIO11 → DC"| tft
+    esp -->|"GPIO12 → RST"| tft
+
+    esp ---|"GPIO13 / INPUT_PULLUP"| button
+    button ---|"Other contact"| ground
+
+    esp ---|"3V3"| power
+    power ---|"VCC"| imu
+    power ---|"VCC"| mag
+    power ---|"VCC"| tft
+    esp ---|"GND"| ground
+    ground ---|"GND"| imu
+    ground ---|"GND"| mag
+    ground ---|"GND"| tft
 ```
+
+GPIO13 uses the internal pull-up; no external resistor is needed. The button
+connects GPIO13 to ground when pressed (LOW) and is HIGH when released.
 
 ## Operation
 

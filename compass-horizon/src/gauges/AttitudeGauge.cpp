@@ -136,7 +136,7 @@ void AttitudeGauge::drawReadouts(float p, float r) {
 }
 #endif
 
-void AttitudeGauge::draw(float p, float r, bool fresh, uint32_t frame) {
+void AttitudeGauge::draw(float p, float r, bool fresh, uint32_t frame, bool levelSet) {
     if (fresh) {
         drawHorizon(p, r);
         drawBankScale(r);
@@ -164,4 +164,11 @@ void AttitudeGauge::draw(float p, float r, bool fresh, uint32_t frame) {
     canvas.printf("FRAME %lu", (unsigned long)frame);
     canvas.fillCircle(120, 223, 3, (millis() / 500) % 2 ? YELLOW : BLACK);
 #endif
+    if (levelSet && fresh) {
+        canvas.fillRoundRect(54,176,132,26,5,BLACK);
+        canvas.setTextSize(2);
+        canvas.setTextColor(YELLOW);
+        canvas.setCursor(66,182);
+        canvas.print("LEVEL SET");
+    }
 }

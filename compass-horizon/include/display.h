@@ -5,7 +5,7 @@
 
 namespace colors {
 enum : uint8_t { Background, White, Muted, Gold, North, Cyan, Red, Green,
-                 Sky, Ground, Black, Yellow, HorizonCyan };
+                 Sky, Ground, Black, Yellow, HorizonCyan, DarkGold };
 }
 
 // One fixed palette for BOTH faces: shadow-buffer bytes always describe the

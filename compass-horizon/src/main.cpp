@@ -11,6 +11,7 @@
 #include "imu.h"
 #include "magnetometer.h"
 #include "button.h"
+#include "button_action.h"
 
 namespace {
 constexpr int buttonPin=13;
@@ -26,6 +27,10 @@ Preferences preferences;
 bool modeStoreReady=false, modeDirty=false, faceDirty=true, watchdogReady=false;
 uint32_t modeChangedAt=0, presses=0, switches=0, dropped=0, loopMaxUs=0, drawMaxUs=0;
 uint32_t modeSaveDelay=500;
+uint32_t longPresses=0, levelSets=0, levelSetAt=0;
+bool levelConfirmation=false;
+bool compassLight=false;
+uint32_t themeChanges=0;
 uint32_t lastFrame=0;
 uint8_t scanAddress=1;
 enum Stage : uint32_t { Idle, Input, ImuRead, MagRead, Draw, Transfer, Logging, Storage, Scan };
@@ -38,6 +43,7 @@ void maximum(uint32_t &a,uint32_t b) { if(b>a) a=b; }
 const char *modeName() { return mode==Mode::Compass ? "compass" : "horizon"; }
 
 void toggleMode(const char *source) {
+    levelConfirmation=false;
     mode=mode==Mode::Compass ? Mode::Horizon : Mode::Compass;
     ++switches; modeChangedAt=millis(); modeSaveDelay=500; modeDirty=mode!=storedMode;
     // All transfers are synchronous. Stop any remaining old-face tiles; shadow
@@ -45,6 +51,41 @@ void toggleMode(const char *source) {
     display.cancel(); faceDirty=true;
     logLine("MODE source=%s mode=%s switches=%lu presses=%lu\n",source,modeName(),
             (unsigned long)switches,(unsigned long)presses);
+}
+
+void recenter(const char *source) {
+    // IMU::zero only snapshots the current filtered angles. No I2C writes,
+    // filter restart, sensor initialization, or flash persistence occurs here.
+    bool ok=imu.zero();
+    if (ok) {
+        ++levelSets;
+        if (mode==Mode::Horizon) {
+            levelConfirmation=true; levelSetAt=millis();
+            display.cancel(); faceDirty=true;
+        }
+    }
+    logLine("LEVEL source=%s ok=%d pitch=%.2f roll=%.2f sets=%lu imu_retry=%lu\n",
+            source,ok,imu.relativePitch(),imu.relativeRoll(),
+            (unsigned long)levelSets,(unsigned long)imu.stats.recoveries);
+}
+
+void handleButton(DebouncedButton::Event event) {
+    if (event==DebouncedButton::Event::Pressed) ++presses;
+    if (event==DebouncedButton::Event::LongPress) {
+        ++longPresses;
+        logLine("BUTTON long mode=%s count=%lu\n",modeName(),(unsigned long)longPresses);
+    }
+    switch (buttonAction(event,mode==Mode::Horizon)) {
+        case ButtonAction::SwitchMode: toggleMode("button"); break;
+        case ButtonAction::Recenter: recenter("button"); break;
+        case ButtonAction::ToggleCompassTheme:
+            compassLight=!compassLight; ++themeChanges;
+            display.cancel(); faceDirty=true;
+            logLine("THEME compass=%s changes=%lu\n",compassLight ? "light" : "dark",
+                    (unsigned long)themeChanges);
+            break;
+        case ButtonAction::None: break;
+    }
 }
 
 void saveMode() {
@@ -70,7 +111,7 @@ void scan() {
 void command(char value) {
     switch(value) {
         case 'm': toggleMode("serial"); break;
-        case 'z': logLine("MPU zero=%d\n",imu.zero()); break;
+        case 'z': recenter("serial"); break;
         case 'c': case 'f': case 'x': case 's': case 'l': case 'e':
             stage(Storage); magnetometer.command(value); break;
         case 'i': scanAddress=1; break;
@@ -82,13 +123,15 @@ void command(char value) {
 void report() {
     auto offset=magnetometer.offsets();
     stage(Logging);
-    if(!logLine("INSTRUMENT up=%lu mode=%s btn=%d presses=%lu switches=%lu mode_saved=%d "
+    if(!logLine("INSTRUMENT up=%lu mode=%s theme=%s themes=%lu btn=%d presses=%lu longs=%lu levels=%lu switches=%lu mode_saved=%d "
             "frame=%lu tiles=%lu imu_fresh=%d imu_sample=%lu imu_err=%lu imu_retry=%lu "
             "pitch=%.2f roll=%.2f mag_fresh=%d mag_valid=%d mag_sample=%lu mag_err=%lu "
             "mag_retry=%lu overflow=%lu heading=%.2f xyz=%d,%d,%d cal=%d saved=%d "
             "offset=%.1f,%.1f,%.1f heap=%u min=%u max_us=%lu,%lu,%lu,%lu,%lu gap_us=%lu "
             "drop=%lu reset=%d prev=%lu wdt=%d\n",
-            (unsigned long)millis(),modeName(),digitalRead(buttonPin),(unsigned long)presses,
+            (unsigned long)millis(),modeName(),compassLight ? "light" : "dark",
+            (unsigned long)themeChanges,digitalRead(buttonPin),(unsigned long)presses,
+            (unsigned long)longPresses,(unsigned long)levelSets,
             (unsigned long)switches,modeStoreReady && mode==storedMode,
             (unsigned long)display.frames,(unsigned long)display.tiles,imu.fresh(),
             (unsigned long)imu.stats.samples,(unsigned long)imu.stats.errors,
@@ -126,7 +169,7 @@ void setup() {
     Wire.setTimeOut(hardware::i2cTimeoutMs);
     imu.begin();
     stage(Draw); display.begin(); stage(Idle);
-    logLine("Compass & Horizon v1.0.0 mode=%s mode_nvs=%d bus=%d button=GPIO13 activeLOW debounce=40ms; keep MPU level at startup\n",
+    logLine("Compass & Horizon v1.1.0 mode=%s mode_nvs=%d bus=%d button=GPIO13 activeLOW debounce=40ms long=2000ms; keep MPU level at startup\n",
             modeName(),modeStoreReady,busReady);
     command('?');
     if(watchdogReady) esp_task_wdt_reset();
@@ -135,19 +178,29 @@ void setup() {
 void loop() {
     uint32_t started=micros();
     stage(Input);
-    if(button.update(digitalRead(buttonPin)==HIGH,millis())) { ++presses; toggleMode("button"); }
+    auto buttonEvent=button.update(digitalRead(buttonPin)==HIGH,millis());
     scan();
     stage(ImuRead); imu.service();
     stage(MagRead); magnetometer.service();
+    // Apply zero after this loop's sensor update, so the next frame uses exactly
+    // the angles just captured as its reference. Subsequent sampling continues.
+    stage(Input); handleButton(buttonEvent);
     if(Serial.available()) command(Serial.read());
     saveMode();
+    if (levelConfirmation && millis()-levelSetAt>=1500) {
+        levelConfirmation=false;
+        if (mode==Mode::Horizon) { display.cancel(); faceDirty=true; }
+    }
     uint32_t frameMs=mode==Mode::Compass ? 50 : 67;
     if(!display.busy() && (faceDirty || millis()-lastFrame>=frameMs)) {
         lastFrame=millis(); stage(Draw);
         uint32_t drawStarted=micros();
         bool painted=true;
-        if(mode==Mode::Compass) painted=compassGauge.draw(magnetometer.displayState(),faceDirty);
-        else attitudeGauge.draw(imu.relativePitch(),imu.relativeRoll(),imu.fresh(),display.frames+1);
+        if(mode==Mode::Compass) {
+            auto state=magnetometer.displayState(); state.light=compassLight;
+            painted=compassGauge.draw(state,faceDirty);
+        }
+        else attitudeGauge.draw(imu.relativePitch(),imu.relativeRoll(),imu.fresh(),display.frames+1,levelConfirmation);
         faceDirty=false;
         maximum(drawMaxUs,micros()-drawStarted);
         if(painted) display.present();

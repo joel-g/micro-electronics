@@ -2,12 +2,13 @@
 
 Embedded electronics projects.
 
-## Compass & Horizon — v1.0.0
+## Compass & Horizon — v1.1.0
 
 [Hardware, button operation, calibration, and testing](compass-horizon/README.md)
 
 Both instruments on one GC9A01 display, selected with a GPIO13 momentary button.
 The last-used mode is saved, and both sensors keep updating in the background.
+Hold the button for two seconds to re-center Horizon or toggle the Compass light/dark theme.
 This third project preserves the two standalone projects below.
 
 ```sh

@@ -6,6 +6,7 @@ struct CompassState {
     CompassStatus status=CompassStatus::Waiting;
     int seconds=0;
     bool saved=false;
+    bool light=false;
 };
 class CompassGauge {
 public:

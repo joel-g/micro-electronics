@@ -6,7 +6,7 @@
 class AttitudeGauge {
 public:
     explicit AttitudeGauge(GFXcanvas8 &surface) : canvas(surface) {}
-    void draw(float pitch, float roll, bool fresh, uint32_t frame);
+    void draw(float pitch, float roll, bool fresh, uint32_t frame, bool levelSet=false);
 private:
     GFXcanvas8 &canvas;
     void drawRotatedLine(float x, float y, float halfLength, float angle, uint16_t color);

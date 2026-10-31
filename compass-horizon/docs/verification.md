@@ -1,5 +1,62 @@
 # Compass & Horizon verification
 
+## v1.1.0 long-press and theme release — 2026-10-30
+
+- Native button tests pass for 40 ms debounce, short actions only on release,
+  the 1999/2000 ms boundary, one long event per hold, suppression of the release
+  after a long press, held-at-startup, timer rollover, and Compass/Horizon actions.
+- Re-centering reuses the existing `IMU::zero()` method. The MPU driver/filter
+  source is unchanged; only its current filtered angles are captured as offsets.
+- Button handling runs without waits. `LEVEL SET` is scheduled for 1.5 seconds
+  without suspending sensor updates. Stale data cannot produce a success banner.
+- The initial re-centering build passed both default/debug builds and was flashed
+  with successful verification. The user confirmed Horizon re-centering with
+  `LEVEL SET`, suppression of a face switch on release, and continued short-press
+  operation. Two logged button re-centers each reported pitch/roll `0.00`, with
+  MPU initialization count still one. Both sensor streams stayed fresh with no
+  errors or restarts; saved magnetic offsets remained unchanged.
+- A Compass long press initially had no action in that capture; the later user
+  request assigns it light/dark theme toggling. Updated button-policy tests pass
+  for that action. Both final PlatformIO builds passed and the default theme
+  firmware was flashed with esptool verification.
+- The user confirmed that a Compass hold selects a readable white face, that
+  white remains selected after visiting Horizon and returning, and that another
+  hold restores the black face without switching instruments on release.
+- The theme capture records the light-theme event followed by switches to
+  Horizon and back. Later reports show two theme changes, one successful
+  Horizon re-center, and continued button switching. All captured periodic
+  reports show both sensors fresh, zero sensor errors, and one initialization
+  each; saved magnetic offsets are unchanged. There is a serial reporting gap
+  (128 dropped diagnostic messages), so this is not a continuous soak test.
+  Physical theme appearance and release behavior were confirmed by the user.
+- Local logs: `diagnostics/long-press.log` and `diagnostics/compass-theme.log`.
+  Theme and attitude zero references remain RAM-only. The v1.0.0 outstanding
+  hardware checks below are still outstanding for this release.
+
+### Final v1.1.0 release checks
+
+- Default and debug PlatformIO builds passed after removing the development
+  suffix. Static RAM: 139,800 bytes; application: 427,150 bytes default and
+  427,990 bytes debug.
+- Button, compass math, and horizon geometry native tests passed again;
+  geometry covered 285,753,600 pixel classifications.
+- The installed, user-tested firmware is the preceding `1.1.0-dev` build.
+  The release changes only its startup version string and documentation; the
+  final version-labelled binaries have been built, not reflashed.
+- Release authorized by the user on 2026-10-30. Standalone project files are
+  unchanged. Previously recorded hardware limitations remain applicable.
+
+Release application binary SHA-256:
+
+```text
+esp32-s3-devkitc-1:
+853bb141f9476c3694e2a62194f6356d10d68ae185b4a922997b92da6c13565a
+debug:
+81c8cc489151f8ae2fb739e45e39ee16e8c6b44d150112da1055d391e123684b
+```
+
+## v1.0.0 release baseline
+
 Hardware test baseline: development v0.1.0, 2026-10-30. Source projects are
 copied/adapted from repository commit `a3829ab`; neither source project is modified
 by this milestone. The v1.0.0 release changes only the firmware version banner

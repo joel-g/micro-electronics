@@ -2,6 +2,20 @@
 
 Embedded electronics projects.
 
+## Compass & Horizon — v1.0.0
+
+[Hardware, button operation, calibration, and testing](compass-horizon/README.md)
+
+Both instruments on one GC9A01 display, selected with a GPIO13 momentary button.
+The last-used mode is saved, and both sensors keep updating in the background.
+This third project preserves the two standalone projects below.
+
+```sh
+cd compass-horizon
+pio run
+pio run -t upload
+```
+
 ## Standalone compass — v1.0.0
 
 [Hardware, wiring, calibration, and testing](compass/README.md)

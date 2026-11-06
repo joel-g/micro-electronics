@@ -2,6 +2,23 @@
 
 Embedded electronics projects.
 
+## Dual Gauge with Buttons — v1.0.0
+
+[Hardware, wiring diagram, button controls, calibration, and testing](dual-gauge-with-buttons/README.md)
+
+Two GC9A01 screens run the artificial horizon and compass continuously. Independent
+buttons select Standard/Numerical attitude and Dark/Light compass presentations.
+Hold the attitude button to re-center; hold the compass button for a 60-second
+calibration that automatically saves valid results. Both display selections and
+saved magnetic calibration survive power cycles. The fitted CAN transceiver is
+unused by this firmware.
+
+```sh
+cd dual-gauge-with-buttons
+pio run
+pio run -t upload
+```
+
 ## Compass & Horizon — v1.1.0
 
 [Hardware, button operation, calibration, and testing](compass-horizon/README.md)

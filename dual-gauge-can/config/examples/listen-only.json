@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "ecu": {
+    "model": "Link G4X Monsoon",
+    "firmware": "6.22.3",
+    "profile": "link_generic_dash",
+    "can_bus": 1,
+    "transmit_channel": 2,
+    "transmit_rate_hz": 20
+  },
+  "can": {
+    "bitrate": 500000,
+    "mode": "listen_only",
+    "id": 1000,
+    "format": "standard"
+  },
+  "displays": {
+    "1": [
+      "horizon",
+      "coolant",
+      "rpm",
+      "boost"
+    ],
+    "2": [
+      "compass",
+      "battery",
+      "iat"
+    ]
+  },
+  "display": {
+    "temperature_unit": "F",
+    "pressure_unit": "psi",
+    "compass_theme": "dark",
+    "horizon_style": "numerical",
+    "stale_ms": 1500,
+    "coolant_c": {
+      "warm": 60,
+      "high": 100,
+      "overheat": 110
+    },
+    "lambda": {
+      "unit": "lambda",
+      "stoichiometric_afr": 14.7
+    }
+  },
+  "scales": {
+    "coolant": [
+      0,
+      130
+    ],
+    "iat": [
+      0,
+      80
+    ],
+    "rpm": [
+      0,
+      8000
+    ],
+    "boost": [
+      -100,
+      200
+    ],
+    "battery": [
+      8,
+      16
+    ],
+    "oil": [
+      0,
+      700
+    ],
+    "fuel": [
+      0,
+      700
+    ],
+    "lambda": [
+      0.6,
+      1.4
+    ]
+  }
+}

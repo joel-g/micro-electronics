@@ -2,6 +2,10 @@
 
 Embedded electronics projects.
 
+Original code and technical documentation are licensed under the
+[MIT License](LICENSE). Photographs, videos and branding are excluded; dependencies
+retain their own licenses. See [licensing scope](LICENSING.md).
+
 ## Dual Gauge with Buttons — v1.0.0
 
 [Hardware, wiring diagram, button controls, calibration, and testing](dual-gauge-with-buttons/README.md)

@@ -330,3 +330,10 @@ receiver with a fake transport, button state machines, display transfer logic,
 compass math, horizon geometry and calibration workflow. Test fixtures stay in
 host binaries; they are not fake measurements displayed by firmware. See the
 verification record for the separate physical bench results and remaining work.
+
+## License
+
+Original code and technical documentation use the [MIT License](../LICENSE).
+Commercial use, modification and redistribution are permitted under its terms.
+The vehicle photograph is excluded; third-party dependencies retain their own
+licenses. See [licensing scope](../LICENSING.md) for details.

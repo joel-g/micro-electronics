@@ -9,6 +9,9 @@ This project reuses the released [compass](../compass/README.md) and
 projects are preserved independently. No CAN, GPS, second display, or additional
 sensor is implemented.
 
+[Bill of materials](docs/BOM.md) · [Wiring diagram](#wiring-diagram) ·
+[Build and upload](#build-upload-and-diagnostics) · [Verification record](docs/verification.md)
+
 ## Release status
 
 **v1.1.0 was authorized for release on 2026-10-30.** It adds two-second
@@ -153,11 +156,11 @@ layout preserves it. Erasing flash removes saved calibration and mode settings.
 Saving/erasing compass calibration here also changes what the standalone compass
 loads when flashed back onto this same ESP32.
 
-To recalibrate, select Compass and close any other serial monitor:
+To recalibrate, select Compass and close any other serial monitor. Run from
+the `compass-horizon` directory, using the port shown by `pio device list`:
 
 ```sh
-cd ~/repos/microelectronics/compass-horizon
-~/.platformio/penv/bin/python tools/serial_capture.py --send c --seconds 65
+python tools/serial_capture.py --port YOUR_PORT --send c --seconds 65
 ```
 
 During the 60-second countdown, slowly rotate flat through a full circle, then
@@ -167,7 +170,7 @@ without straining wires. Keep away from metal/magnets. Return the sensor level.
 After success, **`CAL RAM` is temporary**. Save before disconnecting power:
 
 ```sh
-~/.platformio/penv/bin/python tools/serial_capture.py --send s --seconds 5
+python tools/serial_capture.py --port YOUR_PORT --send s --seconds 5
 ```
 
 Confirm `SAVE ok=1` / `CAL SAVED`. Reboot without saving restores the older stored
@@ -205,24 +208,26 @@ are hidden by default; the `debug` build enables them on the horizon face.
 
 ## Build, upload, and diagnostics
 
+From the repository root:
+
 ```sh
-cd ~/repos/microelectronics/compass-horizon
-~/.platformio/penv/bin/pio run
-~/.platformio/penv/bin/pio run -t upload
-~/.platformio/penv/bin/python tools/serial_capture.py --seconds 30
+cd compass-horizon
+pio run
+pio run -t upload --upload-port YOUR_PORT
+python tools/serial_capture.py --port YOUR_PORT --seconds 30
 ```
 
-The configured port is `/dev/cu.usbmodem101`, baud 115200. Override upload with
-`--upload-port YOUR_PORT`, or capture with `--port YOUR_PORT`. Python needs
-`pyserial`; PlatformIO's Python environment includes it. The helper avoids
+Replace `YOUR_PORT` with the ESP32 port shown by `pio device list`. Serial runs at
+115200 baud. See the [repository setup guide](../README.md#build-and-upload)
+for PlatformIO and Python setup. The capture helper avoids
 DTR/RTS resets on macOS/Linux. Buffered older diagnostics can appear first when
 reconnecting; check uptime. Close other serial readers before upload/capture.
 
 ```sh
 # Optional horizon debug overlay:
-~/.platformio/penv/bin/pio run -e debug -t upload
+pio run -e debug -t upload --upload-port YOUR_PORT
 # Restore the default build:
-~/.platformio/penv/bin/pio run -e esp32-s3-devkitc-1 -t upload
+pio run -e esp32-s3-devkitc-1 -t upload --upload-port YOUR_PORT
 ```
 
 | Serial command | Action |
@@ -310,7 +315,7 @@ restarts to verify mode persistence, and returns to Compass. Keep the button
 released and MPU level while it runs; it leaves magnetic calibration unchanged.
 
 ```sh
-~/.platformio/penv/bin/python tools/switch_test.py
+python tools/switch_test.py --port YOUR_PORT
 ```
 
 Physical acceptance: rotate the level magnetometer in Compass, press once and

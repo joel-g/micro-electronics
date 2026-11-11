@@ -25,6 +25,9 @@ vehicle power regulator/protection assembly or vehicle harness has been specifie
 or qualified by this bench milestone. Purchasing records, exact manufacturer
 MPNs and board revisions should be added when identified.
 
+See the [wiring table and diagram](../README.md#wiring) and
+[verification record](verification.md) for the tested assembly.
+
 ## Vehicle test connection, November 8, 2026
 
 User confirmed G4X Monsoon (MonsoonX), maincode firmware 6.22.3. This supersedes

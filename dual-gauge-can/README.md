@@ -6,25 +6,29 @@
 left and coolant temperature on the right. Photo taken before the final JSON
 configuration update.*
 
-Independent project `dual-gauge-can`, version `1.0.0`, based on released
-`dual-gauge-with-buttons` v1.0.0. Earlier prototypes and their enclosure work are
-preserved unchanged. This milestone prepares a receive-only CAN monitor and
-engine gauge UI for a 2001 Honda CR-V with a Link **G4X Monsoon (MonsoonX), firmware 6.22.3** ECU.
+Dual-display firmware based on [Dual Gauge with Buttons](../dual-gauge-with-buttons/README.md).
+It adds configurable engine gauges using Link Generic Dash CAN. The documented
+vehicle setup is a 2001 Honda CR-V with a Link **G4X Monsoon (MonsoonX),
+firmware 6.22.3** ECU.
+
+- [Bill of materials](docs/BOM.md), [wiring diagram](#wiring-diagram), and
+  [enclosure and print guide](../dual-gauge/enclosure/README.md)
+- [Instrument configuration](docs/configuration.md),
+  [Link Generic Dash decoder and test plan](docs/link-generic-dash.md), and
+  [vehicle connection notes](docs/vehicle-connection.md)
+- [Verification record](docs/verification.md) and [v1.0.0 release notes](docs/release-v1.0.0.md)
 
 **v1.0.0 is published with known validation limits.** The JSON configuration
 revision has passed automated checks and builds but has not yet been flashed
 or hardware-tested. The preceding graphics/CAN revision was tested in the
-vehicle. See [release notes](docs/release-v1.0.0.md).
+vehicle.
 
-**Vehicle testing is in progress.** The user has connected the module directly to
-the Link in place of the AEM lambda, with a 12-inch twisted pair and ground.
-Initial listen-only capture received repeated ID 0 traffic at 500 kbit/s.
-The user-approved acknowledging build is now flashed and receives the 14-frame
-Generic Dash stream at approximately 280 frames/s without receive losses in the
-initial capture. MAP/BAP have been compared with PCLink, and the user has confirmed
-the live coolant, battery, IAT and updated graphics. See [decoder and test plan](docs/link-generic-dash.md),
-[verification](docs/verification.md), [BOM](docs/BOM.md), and
-[vehicle connection notes](docs/vehicle-connection.md).
+In the vehicle test, the module connected directly to the Link in place of the
+AEM lambda through a 12-inch twisted pair and ground. The first listen-only
+capture received repeated ID 0 traffic at 500 kbit/s. A later acknowledging
+build received the 14-frame Generic Dash stream at about 280 frames/s with no
+reported receive losses in the capture. The test compared MAP/BAP with PCLink
+and confirmed live coolant, battery, and IAT on the displays.
 
 ## Configure your instrument
 
@@ -279,26 +283,29 @@ or magnetic fields. Heading is magnetic north, with no declination/tilt compensa
 
 ## Build and bench test
 
+From the repository root:
+
 ```sh
-cd ~/repos/microelectronics/dual-gauge-can
+cd dual-gauge-can
 pio run
 pio run -e debug
 pio run -e vehicle  # same JSON as default; shipped normal_rx acknowledges CAN
-pio run -e vehicle -t upload
+pio run -e vehicle -t upload --upload-port YOUR_PORT
 # Optional passive build: pio run -e listen-only
-pio device monitor -b 115200
+pio device monitor --port YOUR_PORT --baud 115200
 ```
 
-The installed CLI is `~/.platformio/penv/bin/pio`. Port defaults to
-`/dev/cu.usbmodem1101`; adjust if enumeration changes. Pinned framework/libraries,
-4 MB partition layout, USB CDC setup, and 20 MHz SPI are retained. Both CS lines
+Replace `YOUR_PORT` with the ESP32 port shown by `pio device list`. See the
+[repository setup guide](../README.md#build-and-upload) for PlatformIO and Python setup.
+The project pins the framework and libraries and uses a 4 MB flash partition
+layout, USB CDC, and 20 MHz SPI. Both CS lines
 start HIGH; shared RST is pulsed once, then CS-scoped initialization preserves
 the first panel. Each display owns its existing indexed canvas/shadow; transfers
 remain synchronous, at most four changed tiles per screen per loop. Mode changes
 replace only the affected pending face without allocating framebuffers.
 
 ```sh
-~/.platformio/penv/bin/python tools/serial_capture.py --seconds 300 --log diagnostics/bench.log
+python tools/serial_capture.py --port YOUR_PORT --seconds 300 --log diagnostics/bench.log
 ```
 
 Serial `DUAL` diagnostics retain sensor freshness, errors, pitch/roll/heading,
@@ -323,6 +330,7 @@ frames can establish that CAN reception works. Future vehicle steps are in
 sh tools/run_native.sh
 ```
 
+Run from `dual-gauge-can` on a host with Python 3 and a C++17 compiler.
 Configuration tests validate malformed inputs and compile/run an alternate
 metric/extended-ID configuration with optional sensors enabled. Eleven native
 executables exercise the real model/conversions, mode storage, CAN

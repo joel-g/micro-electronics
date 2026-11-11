@@ -127,16 +127,18 @@ outside its arc range clamps the pointer only; its numeric value remains intact.
 
 ## Validate, build and flash
 
-From this project directory:
+Run from the `dual-gauge-can` directory. Replace `YOUR_PORT` with the ESP32
+port shown by `pio device list`. See the
+[repository setup guide](../../README.md#build-and-upload) for PlatformIO setup.
 
 ```sh
 python3 tools/configure.py             # validate without building
 pio run -e vehicle                    # validate, generate constants, compile
-pio run -e vehicle -t upload           # flash; retains NVS
-pio device monitor -b 115200
+pio run -e vehicle -t upload --upload-port YOUR_PORT
+pio device monitor --port YOUR_PORT --baud 115200
 ```
 
-Use `~/.platformio/penv/bin/pio` if `pio` is not on PATH. Syntax errors, unknown
+Flashing retains NVS. Syntax errors, unknown
 keys/faces, duplicates, empty lists, invalid IDs/units/ranges and unsupported
 profiles stop the build with an explanatory error. Use strict JSON: no comments,
 trailing commas, hexadecimal numbers, NaN or Infinity. Keep `schema_version: 1`.

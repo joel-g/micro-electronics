@@ -76,9 +76,12 @@ Generic Dash, ID 1000 arrives at about 280 frames/s with no reported reception
 errors in the one-minute capture. Both variables changed, so this does not
 isolate the original ID 0 cause.
 
-Build/upload the shipped configuration with `pio run -e vehicle -t upload`.
+Build and upload the shipped configuration with
+`pio run -e vehicle -t upload --upload-port YOUR_PORT`.
 The normal partition layout and NVS calibration are retained. To select passive
-behavior, set `can.mode` to `listen_only` or use `pio run -e listen-only -t upload`.
+behavior, set `can.mode` to `listen_only` or use
+`pio run -e listen-only -t upload --upload-port YOUR_PORT`. See
+[build and upload](configuration.md#validate-build-and-flash) for port selection.
 The vehicle/default environment names do not override JSON. The user approved
 acknowledging mode for this two-device connection during bring-up.
 

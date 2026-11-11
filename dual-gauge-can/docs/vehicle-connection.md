@@ -3,23 +3,23 @@
 On November 8, 2026 the user confirmed **G4X Monsoon, maincode 6.22.3**.
 The previous G4+ assumption was incorrect. The module is now connected directly
 in place of the AEM through a 12-inch twisted pair/Deutsch connector and a ground
-reference. ECU on, engine stopped, only ECU and module on CAN. The initial capture
-proves reception at 500 kbit/s; termination and decoded values remain unverified.
-See [the current configuration and test plan](link-generic-dash.md).
+reference. The initial engine-off capture confirmed reception at 500 kbit/s.
+The [verification record](verification.md#follow-up-capture-and-display-confirmation)
+covers the later Generic Dash capture and display checks. The fitted module's
+termination remains unverified.
 
 The checklist below is a historical bring-up plan, not a claim that every item
 has been completed. Current firmware configuration is documented in
-[configuration.md](configuration.md). The checklist originated before connection. Follow the current decoder
-document for the proposed Channel 2 and acknowledging-build changes; these are
-explicit changes from the original listen-only bench scope.
+[configuration.md](configuration.md). The [Generic Dash guide](link-generic-dash.md)
+records the Channel 2 setup, the acknowledging build, and how to select passive mode.
 
 ## Sources and current physical record
 
-- [Official Link G4X MonsoonX Quick Start Guide](https://downloads.linkecu.com/docs/wire-in-ecus/monsoonx-quickstart-guide.pdf),
-  wiring information and connector orientation on page 3. The full installation
-  and CAN stream documentation is in PCLink G4X/G5 Help. The current
-  [Link downloads index](https://linkecu.com/pages/downloads) distinguishes
-  G4+ Monsoon from MonsoonX. Match the exact ECU and connector view before wiring.
+- The [Link downloads index](https://linkecu.com/pages/downloads) lists **G4X
+  MonsoonX** under **G4X Wire-in Quick Start Guides**. See page 3 of that guide
+  for wiring and connector orientation. PCLink G4X/G5 Help contains the full
+  installation and CAN stream documentation. Match the ECU and connector view
+  before wiring.
 - [TI SN65HVD230 datasheet](https://www.ti.com/lit/ds/symlink/sn65hvd230.pdf),
   device functional modes and physical-layer termination guidance.
 - [Waveshare SN65HVD230 reference schematic](https://files.waveshare.com/upload/c/c5/SN65HVD230-CAN-Board-Schematic.pdf).

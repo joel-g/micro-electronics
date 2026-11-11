@@ -1,4 +1,4 @@
-# Compass & Horizon v1.0.0 — bill of materials
+# Compass & Horizon — bill of materials
 
 Module-level BOM for one combined instrument, recorded on 2026-10-30. This
 prototype reuses the controller, display, and sensors from the standalone

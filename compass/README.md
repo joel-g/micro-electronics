@@ -9,6 +9,9 @@ The display shows a rotating compass rose, N/E/S/W, a fixed yellow heading marke
 at the top, and a large `000`–`359°` magnetic heading. Heading animation takes the
 short path across north, including `359° → 000°` in either direction.
 
+[Bill of materials](docs/BOM.md) · [Hardware and connections](#hardware-and-connections) ·
+[Build and upload](#build-upload-and-serial-commands) · [Verification report](docs/verification-v1.md)
+
 ## Release status
 
 **v1.0.0 accepted for publication by the user on 2026-10-30.** The version is
@@ -138,12 +141,11 @@ unsaved recalibration does not overwrite an older saved calibration.
 
 ### Recalibrate, save, and check
 
-Connect the ESP32 by USB and close any other serial monitor. Start calibration
-with the following commands on this development Mac:
+Connect the ESP32 by USB and close any other serial monitor. Run from the
+`compass` directory, using the port shown by `pio device list`:
 
 ```sh
-cd ~/repos/microelectronics/compass
-~/.platformio/penv/bin/python tools/serial_capture.py --send c --seconds 65 --log diagnostics/calibration.log
+python tools/serial_capture.py --port YOUR_PORT --send c --seconds 65 --log diagnostics/calibration.log
 ```
 
 During the 60-second countdown, perform the yaw, pitch, and roll movements above.
@@ -155,7 +157,7 @@ When the display shows `CAL RAM`, check that the heading responds as expected.
 **Before unplugging or restarting**, save the new calibration:
 
 ```sh
-~/.platformio/penv/bin/python tools/serial_capture.py --send s --seconds 5 --log diagnostics/save.log
+python tools/serial_capture.py --port YOUR_PORT --send s --seconds 5 --log diagnostics/save.log
 ```
 
 Confirm the display changes to **`CAL SAVED`** and the serial output reports
@@ -163,9 +165,8 @@ Confirm the display changes to **`CAL SAVED`** and the serial output reports
 output before retrying. After a successful save, unplug and reconnect USB, then
 check the heading again with the sensor level. It should still show `CAL SAVED`.
 
-These commands use PlatformIO's Python environment, which includes `pyserial`.
-On another system, substitute a Python interpreter with `pyserial` installed and
-add `--port YOUR_PORT` to each capture command if needed.
+The capture helper requires `pyserial` and runs on macOS and Linux. See the
+[repository setup guide](../README.md#build-and-upload) for Python setup.
 
 ### Why the heading can change after reconnecting
 
@@ -184,15 +185,17 @@ distortion; this basic calibration only corrects hard-iron offsets.
 
 ## Build, upload, and serial commands
 
+From the repository root:
+
 ```sh
 cd compass
 pio run
-pio run -t upload
-python tools/serial_capture.py --seconds 20
+pio run -t upload --upload-port YOUR_PORT
+python tools/serial_capture.py --port YOUR_PORT --seconds 20
 ```
 
-The configured USB port is `/dev/cu.usbmodem101`. Override upload with
-`pio run -t upload --upload-port YOUR_PORT` and capture with `--port YOUR_PORT`.
+Replace `YOUR_PORT` with the ESP32 port shown by `pio device list`. See the
+[repository setup guide](../README.md#build-and-upload) for PlatformIO and Python setup.
 Close other serial monitors before uploading or using the capture helper.
 
 | Command | Action |
@@ -215,7 +218,7 @@ older log lines can appear first when reconnecting; check the `up` timestamp.
 For the diagnostic-only firmware showing live XYZ on the display:
 
 ```sh
-pio run -e probe -t upload
+pio run -e probe -t upload --upload-port YOUR_PORT
 ```
 
 Upload the default environment again to restore the compass. To restore the

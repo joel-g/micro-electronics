@@ -4,6 +4,9 @@ PlatformIO/Arduino artificial horizon for an ESP32-S3 SuperMini and a 240×240
 GC9A01 TFT. MPU-6050 address: `0x68`. Keep the sensor level during startup; the
 first valid sample establishes zero. Serial command `z` re-zeros it later.
 
+[Bill of materials](docs/BOM.md) · [Wiring diagram](#wiring-diagram) ·
+[Build and upload](#cli) · [Verification and watchdog test](#verification)
+
 ## Release status
 
 **v1.0.0 accepted on 2026-10-30.** The project directory is now
@@ -101,13 +104,14 @@ backlight control pin; the diagram documents only the established wiring.
 
 ## CLI
 
-Run from this directory. If `pio` is absent from PATH, use
-`~/.platformio/penv/bin/pio`.
+Run from the `attitude-indicator` directory. See the
+[repository setup guide](../README.md#build-and-upload) for PlatformIO setup.
+Replace `YOUR_PORT` with the ESP32 port shown by `pio device list`.
 
 ```sh
 pio run
-pio run -t upload --upload-port /dev/cu.usbmodem101
-pio device monitor --port /dev/cu.usbmodem101 --baud 115200
+pio run -t upload --upload-port YOUR_PORT
+pio device monitor --port YOUR_PORT --baud 115200
 ```
 
 Close other serial monitors before uploading or running the soak test.
@@ -133,9 +137,9 @@ indicator, `MPU FAULT`, or the `DEMO` label.
 
 ```sh
 # Build/upload with the on-screen diagnostics enabled:
-pio run -e debug -t upload
+pio run -e debug -t upload --upload-port YOUR_PORT
 # Return to the normal display (debug overlay disabled):
-pio run -e esp32-s3-devkitc-1 -t upload
+pio run -e esp32-s3-devkitc-1 -t upload --upload-port YOUR_PORT
 ```
 
 Plain `pio run` and `pio run -t upload` select the normal environment. The debug
@@ -272,7 +276,7 @@ c++ -std=c++11 -O2 -I include test/horizon_geometry_test.cpp -o /tmp/gauge-geome
 Hardware soak test (PlatformIO's Python includes pyserial):
 
 ```sh
-~/.platformio/penv/bin/python tools/serial_soak.py
+python tools/serial_soak.py --port YOUR_PORT
 ```
 
 It checks normal logging, 60 seconds with an open but unread monitor, 20 seconds
@@ -300,11 +304,11 @@ Keep the sensor in its intended level position: the watchdog reboot establishes
 a new zero. Run from this project directory with other serial monitors closed:
 
 ```sh
-pio run -e watchdog-test -t upload
-~/.platformio/penv/bin/python tools/watchdog_test.py inject
+pio run -e watchdog-test -t upload --upload-port YOUR_PORT
+python tools/watchdog_test.py inject --port YOUR_PORT
 # Restore normal firmware even if the injection test fails:
-pio run -e esp32-s3-devkitc-1 -t upload
-~/.platformio/penv/bin/python tools/watchdog_test.py production
+pio run -e esp32-s3-devkitc-1 -t upload --upload-port YOUR_PORT
+python tools/watchdog_test.py production --port YOUR_PORT
 ```
 
 The test checks watchdog enablement before issuing the stall command. Passing

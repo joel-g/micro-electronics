@@ -5,9 +5,7 @@ Two continuously running GC9A01 instruments with independent controls:
 - **Display 1, CS GPIO10:** artificial horizon; button on **GPIO13**.
 - **Display 2, CS GPIO7:** magnetic compass; button on **GPIO4**.
 
-This is a new independent project, `dual-gauge-with-buttons`, derived from the
-working local `dual-gauge` prototype. The four earlier project
-subdirectories are preserved unchanged. Version: `1.0.0`.
+This firmware was derived from the original dual-display prototype.
 
 Both screens run continuously. Each button changes only its associated screen.
 The connected CAN transceiver is ignored: GPIO5/6 are neither configured nor read,
@@ -15,9 +13,9 @@ and no CAN peripheral, decoding, ECU integration, or additional sensor is enable
 
 Released on 2026-11-05 after physical button, calibration, and cold-start
 persistence checks. Build results and remaining test limits are recorded below.
-The source `dual-gauge` prototype remains a separate local project.
 
-See the [BOM](docs/BOM.md) and [verification record](docs/verification.md).
+[Bill of materials](docs/BOM.md) · [Wiring diagram](#wiring-diagram) ·
+[Verification record](docs/verification.md) · [Enclosure and print guide](../dual-gauge/enclosure/README.md)
 
 ## Wiring
 
@@ -180,18 +178,20 @@ and keeps prior offsets, `l` loads saved offsets, and `e` erases calibration.
 
 ## Build, flash, and diagnostics
 
+From the repository root:
+
 ```sh
-cd ~/repos/microelectronics/dual-gauge-with-buttons
+cd dual-gauge-with-buttons
 pio run
 pio run -e debug
-pio run -e esp32-s3-devkitc-1 -t upload
-pio device monitor -b 115200
+pio run -e esp32-s3-devkitc-1 -t upload --upload-port YOUR_PORT
+pio device monitor --port YOUR_PORT --baud 115200
 ```
 
-The installed CLI is also available as `~/.platformio/penv/bin/pio`. The configured
-port is `/dev/cu.usbmodem1101`; adjust it if USB enumeration changes. The same pinned
-framework/libraries, 4 MB partitions, 20 MHz SPI clock, USB CDC setup, and disabled
-PSRAM configuration are retained from `dual-gauge`. Debug adds a frame counter
+Replace `YOUR_PORT` with the ESP32 port shown by `pio device list`. See the
+[repository setup guide](../README.md#build-and-upload) for PlatformIO and Python setup.
+The project pins the framework and libraries, uses a 4 MB flash partition
+layout, 20 MHz SPI, and USB CDC, and leaves PSRAM disabled. Debug adds a frame counter
 and heartbeat to the horizon; Numerical angle readouts are a normal runtime
 feature in either build.
 
@@ -210,8 +210,8 @@ cannot verify a physical panel by readback. Serial logs include:
 writes have zero TX timeout and skip reports when the host cannot accept them.
 
 ```sh
-~/.platformio/penv/bin/python tools/serial_capture.py --seconds 120 --log diagnostics/buttons.log
-~/.platformio/penv/bin/python tools/analyze_capture.py diagnostics/buttons.log
+python tools/serial_capture.py --port YOUR_PORT --seconds 120 --log diagnostics/buttons.log
+python tools/analyze_capture.py diagnostics/buttons.log
 ```
 
 The analyzer checks a stable capture interval. Intentional calibration changes or

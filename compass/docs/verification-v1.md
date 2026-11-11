@@ -20,16 +20,17 @@ for more than 30 minutes; the manual soak observation is recorded below.
 
 ### Procedure
 
-Run from the `compass` directory with other serial monitors closed. Record the
+Run from the `compass` directory with other serial monitors closed. Replace
+`YOUR_PORT` with the ESP32 port shown by `pio device list`. Record the
 current saved offsets from healthy diagnostics first:
 
 ```sh
-~/.platformio/penv/bin/python tools/serial_capture.py --seconds 5 --log diagnostics/watchdog-preflight.log
-pio run -e watchdog-test -t upload
-~/.platformio/penv/bin/python tools/watchdog_test.py inject
+python tools/serial_capture.py --port YOUR_PORT --seconds 5 --log diagnostics/watchdog-preflight.log
+pio run -e watchdog-test -t upload --upload-port YOUR_PORT
+python tools/watchdog_test.py inject --port YOUR_PORT
 # Always restore normal firmware, including if the test fails:
-pio run -e esp32-s3-devkitc-1 -t upload
-~/.platformio/penv/bin/python tools/watchdog_test.py production
+pio run -e esp32-s3-devkitc-1 -t upload --upload-port YOUR_PORT
+python tools/watchdog_test.py production --port YOUR_PORT
 ```
 
 The helper accepts `--offset=X,Y,Z` to compare against the exact offset string

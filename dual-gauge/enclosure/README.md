@@ -8,7 +8,10 @@ board dimensions below against your own hardware.
 Print the front with its visible face on the bed, and the floor bottom-down with
 its electronics mounts upward. No full L-piece needs to be printed on an edge.
 
-![Split chassis and joint detail](split_v8_preview.png)
+Use the [revision 8 STL list](#current-revision-8-files) for the downloadable
+parts. For electronics and wiring, see the
+[Dual Gauge with Buttons](../../dual-gauge-with-buttons/README.md) or
+[Dual Gauge CAN](../../dual-gauge-can/README.md) project guide.
 
 ## Why revision 8 uses separate pieces
 
@@ -166,12 +169,11 @@ can overwrite generic aliases, so use explicit versioned filenames when sharing.
 | [cover_print.stl](cover_print.stl) | Identical to `cover_v7_print.stl`: compatible cover oriented for printing. |
 | [face_fit_check.stl](face_fit_check.stl) | Identical to `face_mount_fit_check_v7_m2.stl`: a face coupon, **not** the current front with joining tabs. |
 
-### Archived STLs inside `revisions/`
+### Local design archives
 
-The ZIP files preserve source, dimensions and STL snapshots from before each
-change. They also contain copies of earlier versions. They are history, not
-additional parts to print; generic filenames inside an archive refer to that
-archive's revision, not the current directory's aliases.
+The design workspace keeps the ZIP archives below as a record of earlier
+revisions. This repository provides the printable STLs directly in the
+[revision tables above](#stl-filename-guide).
 
 | Archive | Design snapshot |
 | --- | --- |
@@ -264,6 +266,9 @@ same four fastening locations as revision 5: (−56,30), (56,30), (−25,54), (2
 
 ## Source, previews and validation
 
+The following filenames refer to the design workspace. The public checkout
+contains this guide and the STL exports listed above.
+
 - `parameters_v8.json`: current split design and hardware dimensions.
 - `build_split_enclosure.py`: split geometry, exports, previews and validation.
 - `build_enclosure.py`: shared shell/front geometry and checks; running it directly
@@ -284,7 +289,8 @@ attachment and final sensor-axis alignment remain separate physical checks.
 
 ## Regenerate revision 8
 
-Use an environment with `requirements.txt` installed, then run:
+With the design source files available, open their directory and install the
+dependencies from `requirements.txt`. Run:
 
 ```sh
 python build_split_enclosure.py
@@ -298,5 +304,3 @@ python build_split_enclosure.py --floor-only
 
 The latter validates the assembly but exports only `floor_v8_print.stl` and its
 report. If joint dimensions change, rebuild both parts with the full command.
-Revision 8 is maintained in `dual-gauge/enclosure`; the older copied enclosure
-under `dual-gauge-with-buttons` has not been synchronized. No firmware changed.

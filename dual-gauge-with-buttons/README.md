@@ -15,7 +15,7 @@ Released on 2026-11-05 after physical button, calibration, and cold-start
 persistence checks. Build results and remaining test limits are recorded below.
 
 [Bill of materials](docs/BOM.md) · [Wiring diagram](#wiring-diagram) ·
-[Verification record](docs/verification.md) · [Enclosure and print guide](../dual-gauge/enclosure/README.md)
+[Verification record](docs/verification.md) · [Enclosure and print guide](../hardware/dual-gauge-enclosure/README.md)
 
 ## Wiring
 

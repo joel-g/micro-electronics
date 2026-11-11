@@ -11,8 +11,11 @@ Choose a project for its wiring, controls, calibration, and test results.
 | [Standalone compass](compass/README.md) | One GC9A01 display and a QMC5883P magnetometer. | [BOM](compass/docs/BOM.md) |
 | [Attitude indicator](attitude-indicator/README.md) | One GC9A01 display and an MPU-6050 accelerometer/gyroscope. | [BOM](attitude-indicator/docs/BOM.md) |
 
-The [dual-gauge enclosure guide](dual-gauge/enclosure/README.md) covers printable
-STLs, print orientation, fasteners, and fit checks for the two-display assembly.
+## Shared hardware
+
+The [dual-gauge enclosure](hardware/dual-gauge-enclosure/README.md) fits the two-display
+assembly for both Dual Gauge CAN and Dual Gauge with Buttons. Its guide covers
+printable STLs, print orientation, fasteners, and fit checks.
 
 ## Build and upload
 

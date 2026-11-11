@@ -12,7 +12,7 @@ vehicle setup is a 2001 Honda CR-V with a Link **G4X Monsoon (MonsoonX),
 firmware 6.22.3** ECU.
 
 - [Bill of materials](docs/BOM.md), [wiring diagram](#wiring-diagram), and
-  [enclosure and print guide](../dual-gauge/enclosure/README.md)
+  [enclosure and print guide](../hardware/dual-gauge-enclosure/README.md)
 - [Instrument configuration](docs/configuration.md),
   [Link Generic Dash decoder and test plan](docs/link-generic-dash.md), and
   [vehicle connection notes](docs/vehicle-connection.md)

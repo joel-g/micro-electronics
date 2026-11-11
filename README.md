@@ -6,6 +6,13 @@ Original code and technical documentation are licensed under the
 [MIT License](LICENSE). Photographs, videos and branding are excluded; dependencies
 retain their own licenses. See [licensing scope](LICENSING.md).
 
+## Shared framebuffer
+
+The indexed-color firmwares build against [IndexedFramebuffer](shared/IndexedFramebuffer)
+in this checkout. Make changes to dirty-tile detection, RGB565 conversion, or
+transfer batching there. Each firmware still builds from its own directory with
+`pio run` and owns its display setup, palette, and render schedule.
+
 ## Dual Gauge with Buttons — v1.0.0
 
 [Hardware, wiring diagram, button controls, calibration, and testing](dual-gauge-with-buttons/README.md)

@@ -244,7 +244,7 @@ calibration are occasional synchronous operations, not continuous rendering work
 c++ -std=c++17 -O2 -I include test/button_test.cpp src/input/Button.cpp -o /tmp/dgb-button && /tmp/dgb-button
 c++ -std=c++17 -O2 -I test/fakes -I include test/settings_test.cpp src/display_settings.cpp -o /tmp/dgb-settings && /tmp/dgb-settings
 c++ -std=c++17 -O2 -I test/fakes -I include test/calibration_workflow_test.cpp src/sensors/Magnetometer.cpp src/sensors/calibration_store.cpp -o /tmp/dgb-cal && /tmp/dgb-cal
-c++ -std=c++17 -O2 -I test/fakes -I include test/display_test.cpp src/gauges/Display.cpp -o /tmp/dgb-display && /tmp/dgb-display
+c++ -std=c++17 -O2 -I test/fakes -I include -I ../shared/IndexedFramebuffer/src test/display_test.cpp src/gauges/Display.cpp ../shared/IndexedFramebuffer/src/IndexedFramebuffer.cpp -o /tmp/dgb-display && /tmp/dgb-display
 c++ -std=c++17 -O2 -I include test/compass_math_test.cpp -o /tmp/dgb-compass && /tmp/dgb-compass
 c++ -std=c++17 -O2 -I include test/horizon_geometry_test.cpp -o /tmp/dgb-horizon && /tmp/dgb-horizon
 ```

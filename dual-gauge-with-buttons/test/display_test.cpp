@@ -53,5 +53,16 @@ int main() {
     for(auto p:fake::panels[0].pixels) assert(p==0);
     for(auto p:fake::panels[1].pixels) assert(p==0x249F);
     assert(fake::resetPulses==1 && fake::busStarts==1);
-    puts("PASS: shared startup reset, CS isolation, bounded transfers, independent pixels/shadows, unchanged suppression, partial-frame replacement without cross-display changes");
+
+    // Reinitializing one panel clears its pixels, so redraw even when the
+    // canvas is identical to the last completed frame.
+    const auto compassWrites = fake::panels[1].writes;
+    horizon.begin();
+    assert(fake::panels[0].pixels[0]==0x0841);
+    horizon.present();
+    horizon.flushBatch(450);
+    assert(!horizon.busy());
+    for(auto p:fake::panels[0].pixels) assert(p==0);
+    assert(fake::panels[1].writes==compassWrites && fake::panels[1].pixels[0]==0x249F);
+    puts("PASS: shared startup reset, CS isolation, bounded transfers, independent shadows, unchanged suppression, partial-frame replacement, and redraw after reinitialization");
 }

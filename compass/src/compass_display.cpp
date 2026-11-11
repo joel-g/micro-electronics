@@ -9,27 +9,31 @@ constexpr uint16_t palette[] = {0x0841, 0xFFFF, 0x738E, 0xFEA0, 0xF985, 0x5E7F, 
 void recordMax(uint32_t &a, uint32_t b) { if (b > a) a = b; }
 }
 
-CompassDisplay::CompassDisplay() : tft(hardware::cs, hardware::dc, hardware::rst) {}
+CompassDisplay::CompassDisplay() : IndexedFramebuffer(palette),
+    tft(hardware::cs, hardware::dc, hardware::rst) {}
 void CompassDisplay::begin() {
     SPI.begin(hardware::sclk, -1, hardware::mosi, hardware::cs);
     tft.begin(hardware::spiHz);
     tft.setRotation(0);
     tft.fillScreen(palette[Background]);
-    force = true;
+    invalidate();
+    hasState = false;
 }
 void CompassDisplay::centered(const char *text, int y, uint8_t size, uint8_t color) {
+    auto &canvas = IndexedFramebuffer::canvas();
     canvas.setTextSize(size);
     canvas.setTextColor(color);
     canvas.setCursor(120 - int(strlen(text)) * 3 * size, y);
     canvas.print(text);
 }
 void CompassDisplay::prepare(DisplayState state) {
-    if (sending) return;
+    if (busy()) return;
     // Quantize only the graphics position, not the filter state.
     state.heading = compass::wrap(std::round(state.heading * 4.0f) / 4.0f);
     if (hasState && state.heading == lastState.heading && state.status == lastState.status &&
         state.seconds == lastState.seconds && state.saved == lastState.saved) return;
     uint32_t started = micros();
+    auto &canvas = IndexedFramebuffer::canvas();
     lastState = state; hasState = true;
     canvas.fillScreen(Background);
     canvas.drawCircle(120, 120, 114, Muted);
@@ -77,41 +81,9 @@ void CompassDisplay::prepare(DisplayState state) {
     }
     // Fixed lubber mark: the bearing passing under this point is the heading.
     canvas.fillTriangle(113, 4, 127, 4, 120, 18, Gold);
-    nextTile = 0; frameTiles = 0; sending = true;
     recordMax(maxDrawUs, micros() - started);
+    present();
 }
 void CompassDisplay::flushBatch() {
-    if (!sending) return;
-    uint32_t started = micros();
-    unsigned transmitted = 0;
-    auto *pixels = canvas.getBuffer();
-    while (nextTile < 450 && transmitted < 4) {
-        int x = (nextTile % 15) * 16, y = (nextTile / 15) * 8;
-        ++nextTile;
-        bool changed = force;
-        for (int row = 0; row < 8 && !changed; ++row) {
-            int index = (y + row) * 240 + x;
-            changed = memcmp(pixels + index, previous + index, 16) != 0;
-        }
-        if (!changed) continue;
-        for (int row = 0; row < 8; ++row) {
-            int index = (y + row) * 240 + x;
-            for (int column = 0; column < 16; ++column)
-                tilePixels[row * 16 + column] = palette[pixels[index + column]];
-        }
-        tft.startWrite();
-        tft.setAddrWindow(x, y, 16, 8);
-        tft.writePixels(tilePixels, 16 * 8, true);
-        tft.endWrite();
-        for (int row = 0; row < 8; ++row) {
-            int index = (y + row) * 240 + x;
-            memcpy(previous + index, pixels + index, 16);
-        }
-        ++tiles; ++frameTiles; ++transmitted;
-    }
-    if (nextTile == 450) {
-        if (frameTiles) ++frames;
-        sending = false; force = false;
-    }
-    recordMax(maxTransferUs, micros() - started);
+    IndexedFramebuffer::flushBatch(4, tft);
 }

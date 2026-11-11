@@ -1,0 +1,9 @@
+{
+  "name": "IndexedFramebuffer",
+  "version": "1.0.0",
+  "description": "Batched RGB565 tile transfers from an indexed Adafruit GFX canvas",
+  "frameworks": "arduino",
+  "dependencies": {
+    "adafruit/Adafruit GFX Library": "1.13.0"
+  }
+}
